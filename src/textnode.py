@@ -12,10 +12,12 @@ class TextNode:
         self.text_type: str = text_type
         self.url: str | None = url
 
-    def eq(self, TextNode) -> bool:
-        if self == TextNode:
-            return True
-        return False
+    def __eq__(self, other) -> bool:
+        return (
+            self.text_type == other.text_type
+            and self.text == other.text
+            and self.url == other.url
+        )
 
-    def repr(self) -> str:
+    def __repr__(self) -> str:
         return f"TextNode({self.text}, {self.text_type}, {self.url})"
