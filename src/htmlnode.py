@@ -15,14 +15,14 @@ class HTMLNode:
         raise NotImplementedError
     
     def props_to_html(self) -> str | None:
-        html_str: str = ""
+        props_html: str = ""
 
         if self.props == None:
-            return
+            return ""
         for prop in self.props:
-            html_str += f' {prop}="{self.props[prop]}"'
+            props_html += f' {prop}="{self.props[prop]}"'
 
-        return html_str
+        return props_html
 
     def __repr__(self) -> str:
         return f"tag = {self.tag}\nvalue = {self.value}\nchildren = {self.children}\nprops = {self.props_to_html()}"
