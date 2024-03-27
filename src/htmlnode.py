@@ -10,3 +10,24 @@ class HTMLNode:
         self.value: str | None = value
         self.children: list | None = children
         self.props: dict | None = props
+
+    def to_html(self):
+        raise NotImplementedError
+    
+    def props_to_html(self) -> str | None:
+        html_str: str = ""
+
+        if self.props == None:
+            return
+        for prop in self.props:
+            html_str += f' {prop}="{self.props[prop]}"'
+
+        return html_str
+
+    def __repr__(self) -> str:
+        return f"tag = {self.tag}\nvalue = {self.value}\nchildren = {self.children}\nprops = {self.props_to_html()}"
+
+
+test = HTMLNode("a", "testing lang", props={"href": "gl.com", "target": "_blank"})
+
+print(test)
