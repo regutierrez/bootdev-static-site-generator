@@ -6,8 +6,9 @@ from textnode import (
     text_type_bold,
     text_type_italic,
     # text_type_code,
-    # text_type_image,
+    text_type_image,
     # text_type_link,
+    text_node_to_html,
 )
 
 
@@ -38,6 +39,16 @@ class TestTextNode(unittest.TestCase):
         node = TextNode("This is a text node", text_type_text, "https://www.boot.dev")
         self.assertEqual(
             "TextNode(This is a text node, text, https://www.boot.dev)", repr(node)
+        )
+
+    def test_text_node_to_html(self):
+        node = text_node_to_html(
+            TextNode("This is a text node", text_type_image, "https://www.boot.dev")
+        )
+        print(node.to_html())
+        self.assertEqual(
+            node.to_html(),
+            '<img src="https://www.boot.dev" alt="This is a text node"></img>',
         )
 
 
