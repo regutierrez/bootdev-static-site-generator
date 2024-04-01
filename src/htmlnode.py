@@ -43,6 +43,8 @@ class LeafNode(HTMLNode):
     def to_html(self):
         if self.value is None:
             raise ValueError("No value provided")
+        if self.tag is None:
+            return self.value
         return f"<{self.tag}{self.props_to_html()}>{self.value}</{self.tag}>"
 
     def __repr__(self) -> str:
@@ -73,19 +75,3 @@ class ParentNode(HTMLNode):
 
     def __repr__(self) -> str:
         return f"HTMLNODE({self.tag}, children: {self.children}, {self.props})"
-
-
-# test = LeafNode("a", "testing lang", props={"href": "gl.com", "target": "_blank"})
-# print(test.to_html())
-
-node = ParentNode(
-    "p",
-    [
-        LeafNode("b", "Bold text"),
-        LeafNode(None, "Normal text"),
-        LeafNode("i", "italic text"),
-        LeafNode(None, "Normal text"),
-    ],
-)
-
-print(node.to_html())
