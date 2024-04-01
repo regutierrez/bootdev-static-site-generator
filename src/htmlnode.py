@@ -15,10 +15,10 @@ class HTMLNode:
         raise NotImplementedError
 
     def props_to_html(self) -> str | None:
-        props_html: str = ""
-
         if self.props is None:
             return ""
+
+        props_html: str = ""
         for prop in self.props:
             props_html += f' {prop}="{self.props[prop]}"'
 
@@ -49,5 +49,43 @@ class LeafNode(HTMLNode):
         return f"HTMLNODE({self.tag}, {self.value}, {self.props})"
 
 
-test = LeafNode("a", "testing lang", props={"href": "gl.com", "target": "_blank"})
-print(test.to_html())
+class ParentNode(HTMLNode):
+    def __init__(
+        self,
+        tag: str | None,
+        children: list,
+        props: dict | None = None,
+    ) -> None:
+        if children is None:
+            raise ValueError
+        super().__init__(tag=tag, children=children, props=props)
+
+    def to_html(self):
+        if self.tag is None:
+            raise ValueError("No tag provided")
+        if self.children is None:
+            raise ValueError("No children provided")
+        child_html: str = ""
+        for child in self.children:
+            child_html += child.to_html()
+
+        return f"<{self.tag}{self.props_to_html()}>{child_html}</{self.tag}>"
+
+    def __repr__(self) -> str:
+        return f"HTMLNODE({self.tag}, children: {self.children}, {self.props})"
+
+
+# test = LeafNode("a", "testing lang", props={"href": "gl.com", "target": "_blank"})
+# print(test.to_html())
+
+node = ParentNode(
+    "p",
+    [
+        LeafNode("b", "Bold text"),
+        LeafNode(None, "Normal text"),
+        LeafNode("i", "italic text"),
+        LeafNode(None, "Normal text"),
+    ],
+)
+
+print(node.to_html())
