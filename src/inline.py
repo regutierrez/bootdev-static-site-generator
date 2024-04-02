@@ -1,3 +1,4 @@
+import re
 from textnode import (
     TextNode,
     text_type_text,
@@ -35,8 +36,31 @@ def split_nodes_delimiter(
     return new_nodes
 
 
-node = TextNode("This is text with a *code block* word", text_type_text)
-# node = TextNode("This is text with a code block word", text_type_text)
-new_nodes = split_nodes_delimiter([node], "*", text_type_italic)
+def extract_markdown_images(text: str) -> list[tuple]:
+    image_re: str = r"\!\[(.*?)\]\((.*?)\)"
+    matches: list[tuple] = re.findall(image_re, text)
+    return matches
 
-print(new_nodes)
+
+def extract_markdown_links(text: str) -> list[tuple]:
+    link_re: str = r"\[(.*?)\]\((.*?)\)"
+    matches: list[tuple] = re.findall(link_re, text)
+
+    return matches
+
+
+# test for extract_markdown_images
+text = "This is text with an ![image](https://storage.googleapis.com/qvault-webapp-dynamic-assets/course_assets/zjjcJKZ.png) and ![another](https://storage.googleapis.com/qvault-webapp-dynamic-assets/course_assets/dfsdkjfd.png)"
+print(extract_markdown_images(text))
+# [("image", "https://storage.googleapis.com/qvault-webapp-dynamic-assets/course_assets/zjjcJKZ.png"), ("another", "https://storage.googleapis.com/qvault-webapp-dynamic-assets/course_assets/dfsdkjfd.png")]
+
+# test for extract_markdown_links
+text = "This is text with a [link](https://www.example.com) and [another](https://www.example.com/another)"
+print(extract_markdown_links(text))
+# [("link", "https://www.example.com"), ("another", "https://www.example.com/another")]
+
+
+# node = TextNode("This is text with a *code block* word", text_type_text)
+# node = TextNode("This is text with a code block word", text_type_text)
+# new_nodes = split_nodes_delimiter([node], "*", text_type_italic)
+# print(new_nodes)
