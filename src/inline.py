@@ -104,15 +104,19 @@ def split_nodes_links(old_nodes: list[TextNode]) -> list[TextNode]:
     return new_nodes
 
 
-# node = TextNode(
-#     "test1 [image](test1.com) test2 [image](test2.com) test3 [image](test3.com)",
-#     text_type_text,
-# )
+def text_to_textnodes(text: str) -> list[TextNode]:
+    new_nodes: list[TextNode] = [TextNode(text, text_type_text)]
+    delimiter_dict: dict[str, str] = {
+        "**": text_type_bold,
+        "*": text_type_italic,
+        "`": text_type_code,
+    }
 
-# node = TextNode(
-#     "[image](test1.com).",
-#     text_type_text,
-# )
-# new_nodes = split_nodes_links([node])
+    for delimiter, text_type in delimiter_dict.items():
+        new_nodes = split_nodes_delimiter(new_nodes, delimiter, text_type)
 
-# print(new_nodes)
+    for node in new_nodes:
+        new_nodes = split_nodes_images(new_nodes)
+        new_nodes = split_nodes_links(new_nodes)
+
+    return new_nodes
