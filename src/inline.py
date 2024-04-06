@@ -72,6 +72,8 @@ def split_nodes_images(old_nodes: list[TextNode]) -> list[TextNode]:
                 new_nodes.append(TextNode(sections[0], text_type_text))
             new_nodes.append(TextNode(match[0], text_type_image, match[1]))
             node_text = sections[1]
+        if node_text != "":
+            new_nodes.append(TextNode(node_text, text_type_text))
 
     return new_nodes
 
@@ -83,32 +85,34 @@ def split_nodes_links(old_nodes: list[TextNode]) -> list[TextNode]:
             new_nodes.append(node)
             continue
 
-        matches: list[tuple] | None = extract_markdown_images(node.text)
+        matches: list[tuple] | None = extract_markdown_links(node.text)
         if matches is None:
             new_nodes.append(node)
             continue
         node_text: str = node.text
         for match in matches:
-            sections: list[str] = node_text.split(f"![{match[0]}]({match[1]})", 1)
+            sections: list[str] = node_text.split(f"[{match[0]}]({match[1]})", 1)
             if len(sections) <= 1:
                 continue
             if sections[0] != "":
                 new_nodes.append(TextNode(sections[0], text_type_text))
-            new_nodes.append(TextNode(match[0], text_type_image, match[1]))
+            new_nodes.append(TextNode(match[0], text_type_link, match[1]))
             node_text = sections[1]
+        if node_text != "":
+            new_nodes.append(TextNode(node_text, text_type_text))
 
     return new_nodes
 
 
-node = TextNode(
-    "test1 [image](test1.com) test2 [image](test2.com) test3 [image](test3.com)",
-    text_type_text,
-)
-
 # node = TextNode(
-#     "![image](test1.com)",
+#     "test1 [image](test1.com) test2 [image](test2.com) test3 [image](test3.com)",
 #     text_type_text,
 # )
-new_nodes = split_nodes_links([node])
 
-print(new_nodes)
+# node = TextNode(
+#     "[image](test1.com).",
+#     text_type_text,
+# )
+# new_nodes = split_nodes_links([node])
+
+# print(new_nodes)
