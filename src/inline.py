@@ -36,31 +36,79 @@ def split_nodes_delimiter(
     return new_nodes
 
 
-def extract_markdown_images(text: str) -> list[tuple]:
+def extract_markdown_images(text: str) -> list[tuple] | None:
     image_re: str = r"\!\[(.*?)\]\((.*?)\)"
     matches: list[tuple] = re.findall(image_re, text)
+    if len(matches) == 0:
+        return None
     return matches
 
 
-def extract_markdown_links(text: str) -> list[tuple]:
+def extract_markdown_links(text: str) -> list[tuple] | None:
     link_re: str = r"\[(.*?)\]\((.*?)\)"
     matches: list[tuple] = re.findall(link_re, text)
-
+    if len(matches) == 0:
+        return None
     return matches
 
 
-# test for extract_markdown_images
-text = "This is text with an ![image](https://storage.googleapis.com/qvault-webapp-dynamic-assets/course_assets/zjjcJKZ.png) and ![another](https://storage.googleapis.com/qvault-webapp-dynamic-assets/course_assets/dfsdkjfd.png)"
-print(extract_markdown_images(text))
-# [("image", "https://storage.googleapis.com/qvault-webapp-dynamic-assets/course_assets/zjjcJKZ.png"), ("another", "https://storage.googleapis.com/qvault-webapp-dynamic-assets/course_assets/dfsdkjfd.png")]
+def split_nodes_images(old_nodes: list[TextNode]) -> list[TextNode]:
+    new_nodes: list[TextNode] = []
+    for node in old_nodes:
+        if node.text_type != text_type_text:
+            new_nodes.append(node)
+            continue
 
-# test for extract_markdown_links
-text = "This is text with a [link](https://www.example.com) and [another](https://www.example.com/another)"
-print(extract_markdown_links(text))
-# [("link", "https://www.example.com"), ("another", "https://www.example.com/another")]
+        matches: list[tuple] | None = extract_markdown_images(node.text)
+        if matches is None:
+            new_nodes.append(node)
+            continue
+        node_text: str = node.text
+        for match in matches:
+            sections: list[str] = node_text.split(f"![{match[0]}]({match[1]})", 1)
+            if len(sections) <= 1:
+                continue
+            if sections[0] != "":
+                new_nodes.append(TextNode(sections[0], text_type_text))
+            new_nodes.append(TextNode(match[0], text_type_image, match[1]))
+            node_text = sections[1]
+
+    return new_nodes
 
 
-# node = TextNode("This is text with a *code block* word", text_type_text)
-# node = TextNode("This is text with a code block word", text_type_text)
-# new_nodes = split_nodes_delimiter([node], "*", text_type_italic)
-# print(new_nodes)
+def split_nodes_links(old_nodes: list[TextNode]) -> list[TextNode]:
+    new_nodes: list[TextNode] = []
+    for node in old_nodes:
+        if node.text_type != text_type_text:
+            new_nodes.append(node)
+            continue
+
+        matches: list[tuple] | None = extract_markdown_images(node.text)
+        if matches is None:
+            new_nodes.append(node)
+            continue
+        node_text: str = node.text
+        for match in matches:
+            sections: list[str] = node_text.split(f"![{match[0]}]({match[1]})", 1)
+            if len(sections) <= 1:
+                continue
+            if sections[0] != "":
+                new_nodes.append(TextNode(sections[0], text_type_text))
+            new_nodes.append(TextNode(match[0], text_type_image, match[1]))
+            node_text = sections[1]
+
+    return new_nodes
+
+
+node = TextNode(
+    "test1 [image](test1.com) test2 [image](test2.com) test3 [image](test3.com)",
+    text_type_text,
+)
+
+# node = TextNode(
+#     "![image](test1.com)",
+#     text_type_text,
+# )
+new_nodes = split_nodes_links([node])
+
+print(new_nodes)
