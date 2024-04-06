@@ -115,8 +115,7 @@ def text_to_textnodes(text: str) -> list[TextNode]:
     for delimiter, text_type in delimiter_dict.items():
         new_nodes = split_nodes_delimiter(new_nodes, delimiter, text_type)
 
-    for node in new_nodes:
-        new_nodes = split_nodes_images(new_nodes)
-        new_nodes = split_nodes_links(new_nodes)
+    new_nodes = split_nodes_images(new_nodes)
+    new_nodes = split_nodes_links(new_nodes)
 
     return new_nodes
