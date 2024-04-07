@@ -1,13 +1,8 @@
 import re
 from textnode import (
     TextNode,
-    text_type_text,
-    text_type_code,
-    text_type_link,
-    text_type_image,
+    TextType,
     text_node_to_html,
-    text_type_bold,
-    text_type_italic,
 )
 
 
@@ -16,7 +11,7 @@ def split_nodes_delimiter(
 ) -> list[TextNode]:
     new_nodes: list[TextNode] = []
     for node in old_nodes:
-        if node.text_type != text_type_text:
+        if node.text_type != TextType.TEXT_TYPE_TEXT.value:
             new_nodes.append(node)
             continue
         split_nodes: list[TextNode] = []
@@ -28,7 +23,9 @@ def split_nodes_delimiter(
                 if texts[count] == "":
                     continue
                 if count % 2 == 0:
-                    split_nodes.append(TextNode(texts[count], text_type_text))
+                    split_nodes.append(
+                        TextNode(texts[count], TextType.TEXT_TYPE_TEXT.value)
+                    )
                 else:
                     split_nodes.append(TextNode(texts[count], text_type))
             new_nodes.extend(split_nodes)
@@ -55,7 +52,7 @@ def extract_markdown_links(text: str) -> list[tuple] | None:
 def split_nodes_images(old_nodes: list[TextNode]) -> list[TextNode]:
     new_nodes: list[TextNode] = []
     for node in old_nodes:
-        if node.text_type != text_type_text:
+        if node.text_type != TextType.TEXT_TYPE_TEXT.value:
             new_nodes.append(node)
             continue
 
@@ -69,11 +66,13 @@ def split_nodes_images(old_nodes: list[TextNode]) -> list[TextNode]:
             if len(sections) <= 1:
                 continue
             if sections[0] != "":
-                new_nodes.append(TextNode(sections[0], text_type_text))
-            new_nodes.append(TextNode(match[0], text_type_image, match[1]))
+                new_nodes.append(TextNode(sections[0], TextType.TEXT_TYPE_TEXT.value))
+            new_nodes.append(
+                TextNode(match[0], TextType.TEXT_TYPE_IMAGE.value, match[1])
+            )
             node_text = sections[1]
         if node_text != "":
-            new_nodes.append(TextNode(node_text, text_type_text))
+            new_nodes.append(TextNode(node_text, TextType.TEXT_TYPE_TEXT.value))
 
     return new_nodes
 
@@ -81,7 +80,7 @@ def split_nodes_images(old_nodes: list[TextNode]) -> list[TextNode]:
 def split_nodes_links(old_nodes: list[TextNode]) -> list[TextNode]:
     new_nodes: list[TextNode] = []
     for node in old_nodes:
-        if node.text_type != text_type_text:
+        if node.text_type != TextType.TEXT_TYPE_TEXT.value:
             new_nodes.append(node)
             continue
 
@@ -95,21 +94,23 @@ def split_nodes_links(old_nodes: list[TextNode]) -> list[TextNode]:
             if len(sections) <= 1:
                 continue
             if sections[0] != "":
-                new_nodes.append(TextNode(sections[0], text_type_text))
-            new_nodes.append(TextNode(match[0], text_type_link, match[1]))
+                new_nodes.append(TextNode(sections[0], TextType.TEXT_TYPE_TEXT.value))
+            new_nodes.append(
+                TextNode(match[0], TextType.TEXT_TYPE_LINK.value, match[1])
+            )
             node_text = sections[1]
         if node_text != "":
-            new_nodes.append(TextNode(node_text, text_type_text))
+            new_nodes.append(TextNode(node_text, TextType.TEXT_TYPE_TEXT.value))
 
     return new_nodes
 
 
 def text_to_textnodes(text: str) -> list[TextNode]:
-    new_nodes: list[TextNode] = [TextNode(text, text_type_text)]
+    new_nodes: list[TextNode] = [TextNode(text, TextType.TEXT_TYPE_TEXT.value)]
     delimiter_dict: dict[str, str] = {
-        "**": text_type_bold,
-        "*": text_type_italic,
-        "`": text_type_code,
+        "**": TextType.TEXT_TYPE_BOLD.value,
+        "*": TextType.TEXT_TYPE_ITALIC.value,
+        "`": TextType.TEXT_TYPE_CODE.value,
     }
 
     for delimiter, text_type in delimiter_dict.items():

@@ -2,12 +2,7 @@ import unittest
 
 from textnode import (
     TextNode,
-    text_type_text,
-    text_type_bold,
-    text_type_italic,
-    text_type_code,
-    text_type_image,
-    text_type_link,
+    TextType,
     text_node_to_html,
 )
 
@@ -23,14 +18,23 @@ from inline import (
 
 class TestTextNode(unittest.TestCase):
     def test_split_nodes_delimiter(self):
-        node = TextNode("This is text with a `code block` word", text_type_text)
+        node = TextNode(
+            "This is text with a `code block` word", TextType.TEXT_TYPE_TEXT.value
+        )
         result = [
-            TextNode("This is text with a ", text_type_text),
-            TextNode("code block", text_type_code),
-            TextNode(" word", text_type_text),
+            TextNode("This is text with a ", TextType.TEXT_TYPE_TEXT.value),
+            TextNode("code block", TextType.TEXT_TYPE_CODE.value),
+            TextNode(" word", TextType.TEXT_TYPE_TEXT.value),
         ]
 
-        self.assertEqual(split_nodes_delimiter([node], "`", text_type_code), result)
+        self.assertEqual(
+            split_nodes_delimiter(
+                [node],
+                "`",
+                TextType.TEXT_TYPE_CODE.value,
+            ),
+            result,
+        )
 
     def test_extract_markdown_images(self):
         text = "This is text with an ![image](https://storage.googleapis.com/qvault-webapp-dynamic-assets/course_assets/zjjcJKZ.png) and ![another](https://storage.googleapis.com/qvault-webapp-dynamic-assets/course_assets/dfsdkjfd.png)"
@@ -55,21 +59,27 @@ class TestTextNode(unittest.TestCase):
         self.assertEqual(extract_markdown_links(text), result)
 
     def test_split_nodes_images_no_images(self):
-        nodes = [TextNode("This is text without any images.", text_type_text)]
-        expected = [TextNode("This is text without any images.", text_type_text)]
+        nodes = [
+            TextNode("This is text without any images.", TextType.TEXT_TYPE_TEXT.value)
+        ]
+        expected = [
+            TextNode("This is text without any images.", TextType.TEXT_TYPE_TEXT.value)
+        ]
         self.assertEqual(split_nodes_images(nodes), expected)
 
     def test_split_nodes_images_single_image(self):
         nodes = [
             TextNode(
                 "This is text with an ![image](http://example.com/image.png).",
-                text_type_text,
+                TextType.TEXT_TYPE_TEXT.value,
             )
         ]
         expected = [
-            TextNode("This is text with an ", text_type_text),
-            TextNode("image", text_type_image, "http://example.com/image.png"),
-            TextNode(".", text_type_text),
+            TextNode("This is text with an ", TextType.TEXT_TYPE_TEXT.value),
+            TextNode(
+                "image", TextType.TEXT_TYPE_IMAGE.value, "http://example.com/image.png"
+            ),
+            TextNode(".", TextType.TEXT_TYPE_TEXT.value),
         ]
         self.assertEqual(split_nodes_images(nodes), expected)
 
@@ -77,31 +87,40 @@ class TestTextNode(unittest.TestCase):
         nodes = [
             TextNode(
                 "![img1](http://example.com/img1.png) Text ![img2](http://example.com/img2.png)",
-                text_type_text,
+                TextType.TEXT_TYPE_TEXT.value,
             )
         ]
         expected = [
-            TextNode("img1", text_type_image, "http://example.com/img1.png"),
-            TextNode(" Text ", text_type_text),
-            TextNode("img2", text_type_image, "http://example.com/img2.png"),
+            TextNode(
+                "img1", TextType.TEXT_TYPE_IMAGE.value, "http://example.com/img1.png"
+            ),
+            TextNode(" Text ", TextType.TEXT_TYPE_TEXT.value),
+            TextNode(
+                "img2", TextType.TEXT_TYPE_IMAGE.value, "http://example.com/img2.png"
+            ),
         ]
         self.assertEqual(split_nodes_images(nodes), expected)
 
     def test_split_nodes_links_no_links(self):
-        nodes = [TextNode("This is text without any links.", text_type_text)]
-        expected = [TextNode("This is text without any links.", text_type_text)]
+        nodes = [
+            TextNode("This is text without any links.", TextType.TEXT_TYPE_TEXT.value)
+        ]
+        expected = [
+            TextNode("This is text without any links.", TextType.TEXT_TYPE_TEXT.value)
+        ]
         self.assertEqual(split_nodes_links(nodes), expected)
 
     def test_split_nodes_links_single_link(self):
         nodes = [
             TextNode(
-                "This is text with an [link](https://www.example.com).", text_type_text
+                "This is text with an [link](https://www.example.com).",
+                TextType.TEXT_TYPE_TEXT.value,
             )
         ]
         expected = [
-            TextNode("This is text with an ", text_type_text),
-            TextNode("link", text_type_link, "https://www.example.com"),
-            TextNode(".", text_type_text),
+            TextNode("This is text with an ", TextType.TEXT_TYPE_TEXT.value),
+            TextNode("link", TextType.TEXT_TYPE_LINK.value, "https://www.example.com"),
+            TextNode(".", TextType.TEXT_TYPE_TEXT.value),
         ]
         self.assertEqual(split_nodes_links(nodes), expected)
 
@@ -109,35 +128,39 @@ class TestTextNode(unittest.TestCase):
         nodes = [
             TextNode(
                 "This is text with [link1](https://www.example.com) and [link2](https://www.example.com/another).",
-                text_type_text,
+                TextType.TEXT_TYPE_TEXT.value,
             )
         ]
         expected = [
-            TextNode("This is text with ", text_type_text),
-            TextNode("link1", text_type_link, "https://www.example.com"),
-            TextNode(" and ", text_type_text),
-            TextNode("link2", text_type_link, "https://www.example.com/another"),
-            TextNode(".", text_type_text),
+            TextNode("This is text with ", TextType.TEXT_TYPE_TEXT.value),
+            TextNode("link1", TextType.TEXT_TYPE_LINK.value, "https://www.example.com"),
+            TextNode(" and ", TextType.TEXT_TYPE_TEXT.value),
+            TextNode(
+                "link2",
+                TextType.TEXT_TYPE_LINK.value,
+                "https://www.example.com/another",
+            ),
+            TextNode(".", TextType.TEXT_TYPE_TEXT.value),
         ]
         self.assertEqual(split_nodes_links(nodes), expected)
 
     def test_text_to_textnodes(self):
         text = "This is **text** with an *italic* word and a `code block` and an ![image](https://storage.googleapis.com/qvault-webapp-dynamic-assets/course_assets/zjjcJKZ.png) and a [link](https://boot.dev)"
         result = [
-            TextNode("This is ", text_type_text),
-            TextNode("text", text_type_bold),
-            TextNode(" with an ", text_type_text),
-            TextNode("italic", text_type_italic),
-            TextNode(" word and a ", text_type_text),
-            TextNode("code block", text_type_code),
-            TextNode(" and an ", text_type_text),
+            TextNode("This is ", TextType.TEXT_TYPE_TEXT.value),
+            TextNode("text", TextType.TEXT_TYPE_BOLD.value),
+            TextNode(" with an ", TextType.TEXT_TYPE_TEXT.value),
+            TextNode("italic", TextType.TEXT_TYPE_ITALIC.value),
+            TextNode(" word and a ", TextType.TEXT_TYPE_TEXT.value),
+            TextNode("code block", TextType.TEXT_TYPE_CODE.value),
+            TextNode(" and an ", TextType.TEXT_TYPE_TEXT.value),
             TextNode(
                 "image",
-                text_type_image,
+                TextType.TEXT_TYPE_IMAGE.value,
                 "https://storage.googleapis.com/qvault-webapp-dynamic-assets/course_assets/zjjcJKZ.png",
             ),
-            TextNode(" and a ", text_type_text),
-            TextNode("link", text_type_link, "https://boot.dev"),
+            TextNode(" and a ", TextType.TEXT_TYPE_TEXT.value),
+            TextNode("link", TextType.TEXT_TYPE_LINK.value, "https://boot.dev"),
         ]
 
         self.assertEqual(text_to_textnodes(text), result)
@@ -146,8 +169,8 @@ class TestTextNode(unittest.TestCase):
         # Test with adjacent delimiters (bold text immediately followed by italic text)
         text = "**bold****italic**"
         result = [
-            TextNode("bold", text_type_bold),
-            TextNode("italic", text_type_bold),
+            TextNode("bold", TextType.TEXT_TYPE_BOLD.value),
+            TextNode("italic", TextType.TEXT_TYPE_BOLD.value),
         ]
         self.assertEqual(text_to_textnodes(text), result)
 
@@ -155,7 +178,10 @@ class TestTextNode(unittest.TestCase):
         # Test with no markdown elements at all
         text = "Just plain text with no special formatting."
         result = [
-            TextNode("Just plain text with no special formatting.", text_type_text),
+            TextNode(
+                "Just plain text with no special formatting.",
+                TextType.TEXT_TYPE_TEXT.value,
+            ),
         ]
         self.assertEqual(text_to_textnodes(text), result)
 
@@ -163,14 +189,14 @@ class TestTextNode(unittest.TestCase):
         # Test with multiple images and links interspersed with text
         text = "Text with ![img1](http://img1.png) and [link1](http://link1) plus ![img2](http://img2.png) and [link2](http://link2)"
         result = [
-            TextNode("Text with ", text_type_text),
-            TextNode("img1", text_type_image, "http://img1.png"),
-            TextNode(" and ", text_type_text),
-            TextNode("link1", text_type_link, "http://link1"),
-            TextNode(" plus ", text_type_text),
-            TextNode("img2", text_type_image, "http://img2.png"),
-            TextNode(" and ", text_type_text),
-            TextNode("link2", text_type_link, "http://link2"),
+            TextNode("Text with ", TextType.TEXT_TYPE_TEXT.value),
+            TextNode("img1", TextType.TEXT_TYPE_IMAGE.value, "http://img1.png"),
+            TextNode(" and ", TextType.TEXT_TYPE_TEXT.value),
+            TextNode("link1", TextType.TEXT_TYPE_LINK.value, "http://link1"),
+            TextNode(" plus ", TextType.TEXT_TYPE_TEXT.value),
+            TextNode("img2", TextType.TEXT_TYPE_IMAGE.value, "http://img2.png"),
+            TextNode(" and ", TextType.TEXT_TYPE_TEXT.value),
+            TextNode("link2", TextType.TEXT_TYPE_LINK.value, "http://link2"),
         ]
         self.assertEqual(text_to_textnodes(text), result)
 
