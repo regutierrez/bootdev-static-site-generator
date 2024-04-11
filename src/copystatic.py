@@ -18,8 +18,7 @@ def copy_static(src: str = "static", dst: str = "public") -> None:
         shutil.copy(src, dst)
         return
 
-    items: list[str] = os.listdir(src)
-    for item in items:
+    for item in os.listdir(src):
         item_src_path: str = os.path.join(src, item)
         item_dst_path: str = os.path.join(dst, item)
 
