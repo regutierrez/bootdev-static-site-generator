@@ -1,4 +1,5 @@
 from copystatic import copy_static
+from generate_page import generate_page
 import os
 import shutil
 
@@ -10,3 +11,5 @@ if __name__ == "__main__":
 
     print("copying static files to public directory...")
     copy_static()
+
+    generate_page("content/index.md", "template.html", "public/index.html")
