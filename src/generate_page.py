@@ -5,7 +5,7 @@ def extract_title(md: str) -> str:
     lines: list[str] = [line.strip() for line in md.split("\n")]
     for line in lines:
         if line.startswith("# "):
-            return line
+            return line.lstrip("# ")
     raise Exception("No title found")
 
 
