@@ -1,5 +1,10 @@
-from textnode import TextNode
+from copystatic import copy_static
+import os
+import shutil
 
-test_node = TextNode("test", "test_type", "test_url")
+if __name__ == "__main__":
+    public_folder: str = "public"
+    if os.path.exists(public_folder):
+        shutil.rmtree(public_folder)
 
-print(test_node)
+    copy_static()
