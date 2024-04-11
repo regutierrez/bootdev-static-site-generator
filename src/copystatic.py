@@ -20,7 +20,6 @@ def copy_static(src: str = "static", dst: str = "public") -> None:
 
     items: list[str] = os.listdir(src)
     for item in items:
-        print(f"in {item}")
         item_src_path: str = os.path.join(src, item)
         item_dst_path: str = os.path.join(dst, item)
 
