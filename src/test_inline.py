@@ -18,10 +18,10 @@ from inline import (
 
 class TestTextNode(unittest.TestCase):
     def test_split_nodes_delimiter(self):
-        node = TextNode(
+        node1 = TextNode(
             "This is text with a `code block` word", TextType.TEXT_TYPE_TEXT.value
         )
-        result = [
+        result1 = [
             TextNode("This is text with a ", TextType.TEXT_TYPE_TEXT.value),
             TextNode("code block", TextType.TEXT_TYPE_CODE.value),
             TextNode(" word", TextType.TEXT_TYPE_TEXT.value),
@@ -29,11 +29,33 @@ class TestTextNode(unittest.TestCase):
 
         self.assertEqual(
             split_nodes_delimiter(
-                [node],
+                [node1],
                 "`",
                 TextType.TEXT_TYPE_CODE.value,
             ),
-            result,
+            result1,
+        )
+
+        node2 = TextNode(
+            "This is text with an *italic* and **bold** word",
+            TextType.TEXT_TYPE_TEXT.value,
+        )
+
+        result2 = [
+            TextNode("This is text with an ", TextType.TEXT_TYPE_TEXT.value),
+            TextNode("italic", TextType.TEXT_TYPE_ITALIC.value),
+            TextNode(" and ", TextType.TEXT_TYPE_TEXT.value),
+            TextNode("bold", TextType.TEXT_TYPE_TEXT.value),
+            TextNode(" word", TextType.TEXT_TYPE_TEXT.value),
+        ]
+
+        self.assertEqual(
+            split_nodes_delimiter(
+                [node2],
+                "*",
+                TextType.TEXT_TYPE_ITALIC.value,
+            ),
+            result2,
         )
 
     def test_extract_markdown_images(self):
